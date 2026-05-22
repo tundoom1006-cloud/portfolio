@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>이민호 — 페인트 작가</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Noto+Serif+KR:wght@300;400&family=Noto+Sans+KR:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --orange:       #C95E25;
+    --orange-warm:  #E07840;
+    --orange-pale:  #F2D9C8;
+    --cream:        #FAF5EE;
+    --black:        #131110;
+    --charcoal:     #1E1A17;
+    --mid:          #3C3530;
+    --warm-gray:    #8A8178;
+    --off-white:    #FFFCF8;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: var(--off-white);
+    color: var(--black);
+    cursor: none;
+    overflow-x: hidden;
+  }
+
+  /* ── 커서 ── */
+  #cursor {
+    position: fixed;
+    top: 0; left: 0;
+    width: 12px; height: 12px;
+    background: var(--orange);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%,-50%);
+    transition: transform 0.08s, width 0.2s, height 0.2s, background 0.2s;
+    mix-blend-mode: multiply;
+  }
+  #cursor.hovered { width: 36px; height: 36px; background: var(--orange-pale); mix-blend-mode: multiply; }
+
+  /* ── 내비게이션 ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 22px 48px;
+    background: transparent;
+    transition: background 0.4s, backdrop-filter 0.4s;
+  }
+  nav.scrolled {
+    background: rgba(19,17,16,0.92);
+    backdrop-filter: blur(12px);
+  }
+  .nav-logo {
+    font-family: 'Noto Serif KR', serif;
+    font-size: 17px;
+    font-weight: 400;
+    letter-spacing: 2px;
+    color: var(--orange-pale);
+    text-decoration: none;
+  }
+  .nav-links {
+    display: flex;
+    gap: 36px;
+    list-style: none;
+  }
+  .nav-links a {
+    font-size: 13px;
+    letter-spacing: 1px;
+    color: var(--warm-gray);
+    text-decoration: none;
+    transition: color 0.2s;
+    position: relative;
+    font-weight: 300;
+  }
+  .nav-links a::after {
+    content: '';
+    position: absolute;
+    bottom: -3px; left: 0;
+    width: 0; height: 0.5px;
+    background: var(--orange);
+    transition: width 0.3s;
+  }
+  .nav-links a:hover { color: var(--orange-pale); }
+  .nav-links a:hover::after { width: 100%; }
+  .nav-links a.active { color: var(--orange-pale); }
+  .nav-links a.active::after { width: 100%; background: var(--orange); }
+
+  /* ── 히어로 ── */
+  #hero {
+    position: relative;
+    height: 100vh;
+    background: var(--black);
+    overflow: hidden;
+    display: flex;
+    align-items: flex-end;
+  }
+
+  .hero-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%; height: 100%;
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    padding: 0 48px 72px;
+    width: 100%;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+  .hero-title-group { max-width: 640px; }
+  .hero-eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+    opacity: 0;
+    animation: fadeUp 1s 0.4s forwards;
+  }
+  .hero-eyebrow span {
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--orange);
+    font-weight: 300;
+  }
+  .hero-eyebrow::before {
+    content: '';
+    width: 32px; height: 0.5px;
+    background: var(--orange);
+  }
+  .hero-h1 {
+    font-family: 'Noto Serif KR', serif;
+    font-size: clamp(52px, 7vw, 96px);
+    font-weight: 300;
+    line-height: 1.1;
+    color: var(--orange-pale);
+    opacity: 0;
+    animation: fadeUp 1s 0.6s forwards;
+  }
+  .hero-h1 em {
+    font-style: italic;
+    color: var(--orange-warm);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1em;
+  }
+  .hero-meta {
+    text-align: right;
+    opacity: 0;
+    animation: fadeUp 1s 0.9s forwards;
+  }
+  .hero-meta p {
+    font-family: 'Noto Serif KR', serif;
+    font-size: 13px;
+    font-weight: 300;
+    color: var(--warm-gray);
+    line-height: 2.2;
+  }
+  .scroll-hint {
+    position: absolute;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    opacity: 0;
+    animation: fadeIn 1s 1.4s forwards;
+  }
+  .scroll-hint span {
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--warm-gray);
+    font-weight: 300;
+  }
+  .scroll-line {
+    width: 0.5px;
+    height: 48px;
+    background: var(--orange);
+    animation: scrollPulse 2s 1.4s infinite;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; } to { opacity: 1; }
+  }
+  @keyframes scrollPulse {
+    0%, 100% { transform: scaleY(1); opacity: 1; }
+    50% { transform: scaleY(0.4); opacity: 0.3; }
+  }
+
+  /* ── 작가소개 ── */
+  #about {
+    background: var(--charcoal);
+    padding: 120px 48px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+  }
+  .about-left { position: relative; }
+  .about-portrait {
+    width: 100%;
+    aspect-ratio: 3/4;
+    background: var(--mid);
+    border-radius: 2px;
+    position: relative;
+    overflow: hidden;
+  }
+  .about-portrait canvas {
+    width: 100%; height: 100%; display: block;
+  }
+  .about-portrait-label {
+    position: absolute;
+    bottom: 20px; left: 20px;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--orange-pale);
+    opacity: 0.6;
+    font-weight: 300;
+  }
+  .about-accent-box {
+    position: absolute;
+    bottom: -24px; right: -24px;
+    width: 120px; height: 120px;
+    border: 0.5px solid var(--orange);
+    border-radius: 2px;
+    z-index: 0;
+  }
+  .section-tag {
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--orange);
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-weight: 300;
+  }
+  .section-tag::before {
+    content: '';
+    width: 24px; height: 0.5px;
+    background: var(--orange);
+  }
+  .about-name {
+    font-family: 'Noto Serif KR', serif;
+    font-size: clamp(32px, 3.5vw, 48px);
+    font-weight: 300;
+    color: var(--orange-pale);
+    line-height: 1.2;
+    margin-bottom: 6px;
+  }
+  .about-name-sub {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 16px;
+    font-weight: 300;
+    font-style: italic;
+    color: var(--warm-gray);
+    margin-bottom: 36px;
+    letter-spacing: 2px;
+  }
+  .about-bio {
+    font-family: 'Noto Serif KR', serif;
+    font-size: 14px;
+    font-weight: 300;
+    line-height: 2.2;
+    color: #B0A89E;
+    margin-bottom: 40px;
+  }
+  .about-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: rgba(255,255,255,0.06);
+    border: 0.5px solid rgba(255,255,255,0.06);
+    margin-bottom: 40px;
+  }
+  .stat-item {
+    padding: 20px 16px;
+    background: var(--charcoal);
+  }
+  .stat-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 32px;
+    font-weight: 300;
+    color: var(--orange-warm);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .stat-label {
+    font-size: 11px;
+    letter-spacing: 1px;
+    color: var(--warm-gray);
+    font-weight: 300;
+  }
+  .about-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 13px 28px;
+    border: 0.5px solid var(--orange);
+    color: var(--orange-warm);
+    font-size: 13px;
+    letter-spacing: 1px;
+    text-decoration: none;
+    transition: background 0.25s, color 0.25s;
+    font-weight: 300;
+  }
+  .about-cta:hover {
+    background: var(--orange);
+    color: var(--cream);
+  }
+  .about-cta svg { transition: transform 0.2s; }
+  .about-cta:hover svg { transform: translateX(4px); }
+
+  /* ── 갤러리 ── */
+  #gallery {
+    background: var(--cream);
+    padding: 120px 48px;
+  }
+  .gallery-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 60px;
+  }
+  .gallery-title {
+    font-family: 'Noto Serif KR', serif;
+    font-size: clamp(36px, 4.5vw, 60px);
+    font-weight: 300;
+    line-height: 1.2;
+    color: var(--black);
+  }
+  .gallery-title em { font-style: italic; color: var(--orange); font-family: 'Cormorant Garamond', serif; font-size: 1.1em; }
+  .gallery-filter {
+    display: flex;
+    gap: 4px;
+  }
+  .filter-btn {
+    padding: 8px 18px;
+    font-size: 12px;
+    letter-spacing: 1px;
+    background: transparent;
+    border: 0.5px solid rgba(0,0,0,0.15);
+    color: var(--warm-gray);
+    cursor: none;
+    transition: all 0.2s;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-weight: 300;
+  }
+  .filter-btn.active, .filter-btn:hover {
+    background: var(--orange);
+    border-color: var(--orange);
+    color: white;
+  }
+
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    grid-auto-rows: 80px;
+    gap: 12px;
+  }
+
+  .work-item {
+    position: relative;
+    overflow: hidden;
+    border-radius: 2px;
+    cursor: none;
+  }
+  .work-item:nth-child(1) { grid-column: span 7; grid-row: span 5; }
+  .work-item:nth-child(2) { grid-column: span 5; grid-row: span 3; }
+  .work-item:nth-child(3) { grid-column: span 5; grid-row: span 2; }
+  .work-item:nth-child(4) { grid-column: span 4; grid-row: span 4; }
+  .work-item:nth-child(5) { grid-column: span 4; grid-row: span 4; }
+  .work-item:nth-child(6) { grid-column: span 4; grid-row: span 4; }
+  .work-item:nth-child(7) { grid-column: span 5; grid-row: span 3; }
+  .work-item:nth-child(8) { grid-column: span 7; grid-row: span 3; }
+
+  .work-item canvas {
+    width: 100%; height: 100%;
+    display: block;
+    transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+  .work-item:hover canvas { transform: scale(1.04); }
+
+  .work-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(19,17,16,0);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 20px;
+    transition: background 0.35s;
+  }
+  .work-item:hover .work-overlay { background: rgba(19,17,16,0.65); }
+  .work-info { opacity: 0; transform: translateY(8px); transition: all 0.3s 0.05s; }
+  .work-item:hover .work-info { opacity: 1; transform: translateY(0); }
+  .work-title {
+    font-family: 'Noto Serif KR', serif;
+    font-size: 16px;
+    font-weight: 300;
+    color: var(--orange-pale);
+    margin-bottom: 4px;
+  }
+  .work-meta {
+    font-size: 11px;
+    letter-spacing: 1px;
+    color: var(--warm-gray);
+    font-weight: 300;
+  }
+
+  /* ── 문의 ── */
+  #contact {
+    background: var(--black);
+    padding: 120px 48px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+  }
+  .contact-left h2 {
+    font-family: 'Noto Serif KR', serif;
+    font-size: clamp(36px, 4.5vw, 60px);
+    font-weight: 300;
+    line-height: 1.3;
+    color: var(--orange-pale);
+    margin-bottom: 24px;
+  }
+  .contact-left h2 em { font-style: italic; color: var(--orange-warm); font-family: 'Cormorant Garamond', serif; }
+  .contact-left p {
+    font-size: 14px;
+    color: var(--warm-gray);
+    line-height: 2.2;
+    margin-bottom: 40px;
+    font-weight: 300;
+    font-family: 'Noto Serif KR', serif;
+  }
+  .contact-links { display: flex; flex-direction: column; gap: 16px; }
+  .contact-link {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    color: var(--warm-gray);
+    text-decoration: none;
+    font-size: 13px;
+    transition: color 0.2s;
+    font-weight: 300;
+  }
+  .contact-link:hover { color: var(--orange-pale); }
+  .contact-link-icon {
+    width: 36px; height: 36px;
+    border: 0.5px solid rgba(255,255,255,0.1);
+    display: flex; align-items: center; justify-content: center;
+    transition: border-color 0.2s, background 0.2s;
+    flex-shrink: 0;
+  }
+  .contact-link:hover .contact-link-icon {
+    border-color: var(--orange);
+    background: rgba(201,94,37,0.1);
+  }
+  .contact-link-icon svg { color: var(--orange); }
+
+  .contact-form { display: flex; flex-direction: column; gap: 20px; }
+  .form-group { display: flex; flex-direction: column; gap: 8px; }
+  .form-group label {
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    color: var(--warm-gray);
+    font-weight: 300;
+  }
+  .form-group input,
+  .form-group textarea {
+    background: rgba(255,255,255,0.04);
+    border: 0.5px solid rgba(255,255,255,0.1);
+    padding: 14px 16px;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 14px;
+    color: var(--orange-pale);
+    outline: none;
+    transition: border-color 0.2s;
+    resize: none;
+    border-radius: 0;
+    font-weight: 300;
+  }
+  .form-group input::placeholder,
+  .form-group textarea::placeholder { color: var(--mid); }
+  .form-group input:focus,
+  .form-group textarea:focus { border-color: var(--orange); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .form-submit {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 16px;
+    background: var(--orange);
+    border: none;
+    color: var(--cream);
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 13px;
+    letter-spacing: 1px;
+    cursor: none;
+    transition: background 0.2s;
+    margin-top: 4px;
+    font-weight: 400;
+  }
+  .form-submit:hover { background: var(--orange-warm); }
+
+  /* ── 푸터 ── */
+  footer {
+    background: var(--charcoal);
+    padding: 28px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 0.5px solid rgba(255,255,255,0.06);
+  }
+  footer p {
+    font-size: 12px;
+    color: var(--warm-gray);
+    font-weight: 300;
+  }
+  .footer-logo {
+    font-family: 'Noto Serif KR', serif;
+    font-size: 16px;
+    color: var(--orange-pale);
+    letter-spacing: 2px;
+    font-weight: 300;
+  }
+
+  /* ── 라이트박스 ── */
+  #lightbox {
+    position: fixed;
+    inset: 0;
+    background: rgba(13,11,10,0.95);
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+  #lightbox.open { opacity: 1; pointer-events: all; }
+  #lightbox-inner {
+    max-width: 80vw;
+    max-height: 80vh;
+    position: relative;
+  }
+  #lightbox canvas { max-width: 80vw; max-height: 80vh; border-radius: 2px; display: block; }
+  #lightbox-caption {
+    position: absolute;
+    bottom: -40px; left: 0;
+    font-family: 'Noto Serif KR', serif;
+    font-size: 14px;
+    color: var(--warm-gray);
+    font-weight: 300;
+  }
+  #lightbox-close {
+    position: absolute;
+    top: -40px; right: 0;
+    background: none; border: none;
+    color: var(--warm-gray);
+    font-size: 22px;
+    cursor: none;
+    transition: color 0.2s;
+  }
+  #lightbox-close:hover { color: var(--orange); }
+
+  /* ── 섹션 앵커 오프셋 (고정 내비 높이만큼 여백) ── */
+  #about, #gallery, #contact {
+    scroll-margin-top: 72px;
+  }
+
+  /* ── 스크롤 리빌 ── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(32px);
+    transition: opacity 0.8s, transform 0.8s;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+</style>
+</head>
+<body>
+
+<div id="cursor"></div>
+
+<!-- 라이트박스 -->
+<div id="lightbox">
+  <div id="lightbox-inner">
+    <button id="lightbox-close">✕</button>
+    <canvas id="lightbox-canvas" width="800" height="600"></canvas>
+    <p id="lightbox-caption"></p>
+  </div>
+</div>
+
+<!-- 내비게이션 -->
+<nav id="navbar">
+  <a href="#" data-target="hero" class="nav-logo nav-btn">이민호</a>
+  <ul class="nav-links">
+    <li><a href="#" data-target="about" class="nav-btn">작가소개</a></li>
+    <li><a href="#" data-target="gallery" class="nav-btn">작품갤러리</a></li>
+    <li><a href="#" data-target="contact" class="nav-btn">문의하기</a></li>
+  </ul>
+</nav>
+
+<!-- 히어로 -->
+<section id="hero">
+  <canvas class="hero-canvas" id="heroCanvas"></canvas>
+  <div class="hero-content">
+    <div class="hero-title-group">
+      <div class="hero-eyebrow"><span>페인트 작가 · 서울</span></div>
+      <h1 class="hero-h1">빛과<br><em>물감</em><br>사이에서</h1>
+    </div>
+    <div class="hero-meta">
+      <p>페인트의 물성과 색채가<br>만나는 지점에서 작업합니다</p>
+    </div>
+  </div>
+  <div class="scroll-hint">
+    <div class="scroll-line"></div>
+    <span>내려보기</span>
+  </div>
+</section>
+
+<!-- 작가소개 -->
+<section id="about">
+  <div class="about-left reveal">
+    <div class="about-portrait">
+      <canvas id="portraitCanvas"></canvas>
+      <div class="about-portrait-label">작업실, 서울 2024</div>
+    </div>
+    <div class="about-accent-box"></div>
+  </div>
+  <div class="about-right reveal">
+    <div class="section-tag">작가소개</div>
+    <h2 class="about-name">이민호</h2>
+    <p class="about-name-sub">Lee Minho</p>
+    <p class="about-bio">
+      페인트의 물성과 색채가 만나는 지점에서 작업합니다. 오렌지의 따뜻한 온도, 블랙의 깊은 침묵, 화이트의 고요한 여백 — 이 세 가지가 함께 숨 쉬는 공간을 만들어갑니다.<br><br>
+      서울을 기반으로 유화와 아크릴을 주로 사용하며, 색의 겹침이 어떤 감정의 무게를 담을 수 있는지 탐구합니다. 각 작품은 물감이 말로는 전할 수 없는 것들을 표현하는 하나의 실험입니다.
+    </p>
+    <div class="about-stats">
+      <div class="stat-item">
+        <div class="stat-num">12+</div>
+        <div class="stat-label">전시 참여</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">80+</div>
+        <div class="stat-label">작품 수</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">2017</div>
+        <div class="stat-label">작업 시작</div>
+      </div>
+    </div>
+    <a href="#" data-target="contact" class="about-cta nav-btn">
+      작품 의뢰하기
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8h12M9 3l5 5-5 5"/></svg>
+    </a>
+  </div>
+</section>
+
+<!-- 작품갤러리 -->
+<section id="gallery">
+  <div class="gallery-header reveal">
+    <h2 class="gallery-title">주요<br><em>작품</em></h2>
+    <div class="gallery-filter">
+      <button class="filter-btn active" data-filter="all">전체</button>
+      <button class="filter-btn" data-filter="oil">유화</button>
+      <button class="filter-btn" data-filter="acrylic">아크릴</button>
+      <button class="filter-btn" data-filter="mixed">혼합</button>
+    </div>
+  </div>
+  <div class="gallery-grid reveal">
+    <!-- 작품 항목은 JS로 삽입됩니다 -->
+  </div>
+</section>
+
+<!-- 문의하기 -->
+<section id="contact">
+  <div class="contact-left reveal">
+    <div class="section-tag">문의하기</div>
+    <h2>함께<br><em>만들어</em><br>봐요</h2>
+    <p>갤러리 전시, 작품 의뢰, 콜라보레이션 등 다양한 문의를 환영합니다. 편하게 연락 주세요.</p>
+    <div class="contact-links">
+      <a href="mailto:a01075716278@gmail.com" class="contact-link">
+        <div class="contact-link-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7l10 7 10-7"/></svg>
+        </div>
+        a01075716278@gmail.com
+      </a>
+      <a href="https://instagram.com/aldhomin" target="_blank" rel="noopener noreferrer" class="contact-link">
+        <div class="contact-link-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>
+        </div>
+        @aldhomin
+      </a>
+      <a href="#" class="contact-link">
+        <div class="contact-link-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        </div>
+        서울특별시, 대한민국
+      </a>
+    </div>
+  </div>
+  <div class="contact-right reveal">
+    <form class="contact-form" onsubmit="handleSubmit(event)">
+      <div class="form-row">
+        <div class="form-group">
+          <label>이름</label>
+          <input type="text" placeholder="성함을 입력해 주세요">
+        </div>
+        <div class="form-group">
+          <label>이메일</label>
+          <input type="email" placeholder="이메일 주소">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>문의 유형</label>
+        <input type="text" placeholder="작품 의뢰 / 전시 문의 / 일반 문의">
+      </div>
+      <div class="form-group">
+        <label>메시지</label>
+        <textarea rows="5" placeholder="문의 내용을 자유롭게 작성해 주세요..."></textarea>
+      </div>
+      <button type="submit" class="form-submit">
+        메시지 보내기
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13"/><path d="M22 2L15 22l-4-9-9-4 20-7z"/></svg>
+      </button>
+    </form>
+  </div>
+</section>
+
+<!-- 푸터 -->
+<footer>
+  <p>© 2024 이민호. 모든 권리 보유.</p>
+  <div class="footer-logo">이민호</div>
+  <p>서울특별시, 대한민국</p>
+</footer>
+
+<script>
+// ── 커서
+const cursor = document.getElementById('cursor');
+document.addEventListener('mousemove', e => {
+  cursor.style.left = e.clientX + 'px';
+  cursor.style.top  = e.clientY + 'px';
+});
+document.querySelectorAll('a, button, .work-item, .filter-btn').forEach(el => {
+  el.addEventListener('mouseenter', () => cursor.classList.add('hovered'));
+  el.addEventListener('mouseleave', () => cursor.classList.remove('hovered'));
+});
+
+// ── 내비게이션 클릭 → 섹션 이동
+document.querySelectorAll('.nav-btn').forEach(btn => {
+  btn.addEventListener('click', e => {
+    e.preventDefault();
+    const target = btn.getAttribute('data-target');
+    const el = document.getElementById(target);
+    if (el) {
+      const offset = target === 'hero' ? 0 : 72;
+      const top = el.getBoundingClientRect().top + window.scrollY - offset;
+      window.scrollTo({ top, behavior: 'smooth' });
+    }
+  });
+});
+
+// ── 스크롤 시 내비 배경 + 활성 표시
+const sections = ['about', 'gallery', 'contact'];
+const navLinks = document.querySelectorAll('.nav-links a');
+
+window.addEventListener('scroll', () => {
+  document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 60);
+  let current = '';
+  sections.forEach(id => {
+    const el = document.getElementById(id);
+    if (el && window.scrollY >= el.offsetTop - 120) current = id;
+  });
+  navLinks.forEach(a => {
+    a.classList.remove('active');
+    if (a.getAttribute('data-target') === current) a.classList.add('active');
+  });
+});
+
+// ── 히어로 캔버스
+(function() {
+  const canvas = document.getElementById('heroCanvas');
+  function resize() {
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+    draw();
+  }
+  function draw() {
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width, H = canvas.height;
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle = '#131110';
+    ctx.fillRect(0,0,W,H);
+    const blobs = [
+      { x: W*0.7, y: H*0.35, rx: W*0.35, ry: H*0.4,  c: 'rgba(201,94,37,0.18)'  },
+      { x: W*0.55, y: H*0.6, rx: W*0.28, ry: H*0.32, c: 'rgba(224,120,64,0.12)' },
+      { x: W*0.15, y: H*0.5, rx: W*0.22, ry: H*0.28, c: 'rgba(242,217,200,0.05)'},
+      { x: W*0.8,  y: H*0.8, rx: W*0.2,  ry: H*0.2,  c: 'rgba(201,94,37,0.08)' },
+    ];
+    blobs.forEach(b => {
+      ctx.save();
+      ctx.beginPath();
+      ctx.ellipse(b.x, b.y, b.rx, b.ry, 0.3, 0, Math.PI*2);
+      ctx.fillStyle = b.c;
+      ctx.filter = 'blur(60px)';
+      ctx.fill();
+      ctx.restore();
+    });
+    const strokes = [
+      { pts: [[W*0.3,H*0.2],[W*0.55,H*0.35],[W*0.75,H*0.25],[W*0.9,H*0.4]], w: 2.5, c: 'rgba(201,94,37,0.5)' },
+      { pts: [[W*0.1,H*0.6],[W*0.4,H*0.55],[W*0.65,H*0.7],[W*0.85,H*0.6]], w: 1,   c: 'rgba(224,120,64,0.3)' },
+      { pts: [[W*0.0,H*0.85],[W*0.3,H*0.75],[W*0.6,H*0.82],[W*1.0,H*0.72]], w: 0.5, c: 'rgba(242,217,200,0.2)' },
+    ];
+    strokes.forEach(s => {
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(s.pts[0][0], s.pts[0][1]);
+      for (let i = 1; i < s.pts.length - 1; i++) {
+        const mx = (s.pts[i][0] + s.pts[i+1][0]) / 2;
+        const my = (s.pts[i][1] + s.pts[i+1][1]) / 2;
+        ctx.quadraticCurveTo(s.pts[i][0], s.pts[i][1], mx, my);
+      }
+      ctx.strokeStyle = s.c;
+      ctx.lineWidth = s.w;
+      ctx.stroke();
+      ctx.restore();
+    });
+    for (let i = 0; i < 80; i++) {
+      const x = Math.random() * W;
+      const y = Math.random() * H;
+      const r = Math.random() * 2.5 + 0.5;
+      const a = Math.random() * 0.4 + 0.05;
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, Math.PI*2);
+      ctx.fillStyle = `rgba(201,94,37,${a})`;
+      ctx.fill();
+    }
+  }
+  window.addEventListener('resize', resize);
+  resize();
+})();
+
+// ── 초상화 캔버스
+(function() {
+  const canvas = document.getElementById('portraitCanvas');
+  canvas.width = 400; canvas.height = 533;
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#2C2520';
+  ctx.fillRect(0,0,400,533);
+  [{x:200,y:200,rx:110,ry:120,c:'rgba(201,94,37,0.3)'},{x:160,y:240,rx:80,ry:100,c:'rgba(242,217,200,0.12)'},{x:240,y:180,rx:70,ry:80,c:'rgba(224,120,64,0.2)'}].forEach(b=>{
+    ctx.save(); ctx.beginPath(); ctx.ellipse(b.x,b.y,b.rx,b.ry,0,0,Math.PI*2);
+    ctx.fillStyle=b.c; ctx.filter='blur(30px)'; ctx.fill(); ctx.restore();
+  });
+  ctx.save();
+  ctx.beginPath(); ctx.moveTo(200,80); ctx.bezierCurveTo(240,120,220,200,210,300);
+  ctx.bezierCurveTo(200,380,180,420,175,480);
+  ctx.strokeStyle='rgba(201,94,37,0.6)'; ctx.lineWidth=2; ctx.stroke(); ctx.restore();
+  ctx.save();
+  ctx.beginPath(); ctx.arc(200,110,40,0,Math.PI*2);
+  ctx.strokeStyle='rgba(242,217,200,0.25)'; ctx.lineWidth=1; ctx.stroke(); ctx.restore();
+  for(let i=0;i<40;i++){
+    const x=Math.random()*400, y=Math.random()*533, r=Math.random()*3+0.5;
+    ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2);
+    ctx.fillStyle=`rgba(201,94,37,${Math.random()*0.3+0.05})`; ctx.fill();
+  }
+  ctx.fillStyle='rgba(19,17,16,0.15)'; ctx.fillRect(0,0,400,533);
+})();
+
+// ── 갤러리 작품
+const works = [
+  { title: '온기 No. 7',   year: '2024', medium: '캔버스에 유화',  filter: 'oil',     draw: drawWork1 },
+  { title: '검정 연구 II', year: '2024', medium: '아크릴',         filter: 'acrylic', draw: drawWork2 },
+  { title: '오렌지 베일',  year: '2023', medium: '혼합 매체',      filter: 'mixed',   draw: drawWork3 },
+  { title: '불씨 들판',    year: '2024', medium: '캔버스에 유화',  filter: 'oil',     draw: drawWork4 },
+  { title: '흔적',         year: '2023', medium: '아크릴',         filter: 'acrylic', draw: drawWork5 },
+  { title: '겹침',         year: '2022', medium: '유화',           filter: 'oil',     draw: drawWork6 },
+  { title: '고요한 열',    year: '2024', medium: '혼합 매체',      filter: 'mixed',   draw: drawWork7 },
+  { title: '밤의 신호',    year: '2023', medium: '린넨에 아크릴',  filter: 'acrylic', draw: drawWork8 },
+];
+
+function drawWork1(ctx, W, H) {
+  ctx.fillStyle='#1E1A17'; ctx.fillRect(0,0,W,H);
+  [{x:W*.6,y:H*.4,rx:W*.5,ry:H*.45,c:'rgba(201,94,37,0.45)'},{x:W*.3,y:H*.65,rx:W*.35,ry:H*.3,c:'rgba(242,217,200,0.15)'},{x:W*.75,y:H*.7,rx:W*.3,ry:H*.25,c:'rgba(224,120,64,0.25)'}].forEach(b=>{
+    ctx.save();ctx.beginPath();ctx.ellipse(b.x,b.y,b.rx,b.ry,0.4,0,Math.PI*2);ctx.fillStyle=b.c;ctx.filter='blur(40px)';ctx.fill();ctx.restore();
+  });
+  ctx.save();ctx.beginPath();ctx.moveTo(W*.1,H*.8);ctx.bezierCurveTo(W*.3,H*.5,W*.7,H*.6,W*.95,H*.3);ctx.strokeStyle='rgba(201,94,37,0.7)';ctx.lineWidth=1.5;ctx.stroke();ctx.restore();
+}
+function drawWork2(ctx, W, H) {
+  ctx.fillStyle='#0D0B0A'; ctx.fillRect(0,0,W,H);
+  ctx.save();ctx.beginPath();ctx.ellipse(W*.5,H*.5,W*.35,H*.4,0,0,Math.PI*2);ctx.fillStyle='rgba(201,94,37,0.35)';ctx.filter='blur(30px)';ctx.fill();ctx.restore();
+  ctx.save();ctx.beginPath();ctx.arc(W*.5,H*.45,W*.22,0,Math.PI*2);ctx.strokeStyle='rgba(242,217,200,0.2)';ctx.lineWidth=1;ctx.stroke();ctx.restore();
+  ctx.save();ctx.beginPath();ctx.arc(W*.5,H*.45,W*.1,0,Math.PI*2);ctx.fillStyle='rgba(255,252,248,0.08)';ctx.fill();ctx.restore();
+}
+function drawWork3(ctx, W, H) {
+  ctx.fillStyle='#FAF5EE'; ctx.fillRect(0,0,W,H);
+  ctx.save();ctx.fillStyle='rgba(201,94,37,0.6)';ctx.fillRect(W*.15,H*.1,W*.5,H*.8);ctx.restore();
+  ctx.save();ctx.fillStyle='rgba(19,17,16,0.75)';ctx.fillRect(W*.45,H*.05,W*.45,H*.9);ctx.restore();
+  ctx.save();ctx.beginPath();ctx.ellipse(W*.4,H*.5,W*.2,H*.35,0.2,0,Math.PI*2);ctx.fillStyle='rgba(255,252,248,0.4)';ctx.filter='blur(20px)';ctx.fill();ctx.restore();
+}
+function drawWork4(ctx, W, H) {
+  ctx.fillStyle='#1C1815'; ctx.fillRect(0,0,W,H);
+  for(let i=0;i<6;i++){
+    const x=Math.random()*W, y=Math.random()*H, rx=Math.random()*W*.2+W*.05, ry=Math.random()*H*.15+H*.05;
+    ctx.save();ctx.beginPath();ctx.ellipse(x,y,rx,ry,Math.random()*Math.PI,0,Math.PI*2);ctx.fillStyle=`rgba(201,94,37,${Math.random()*0.3+0.1})`;ctx.filter='blur(20px)';ctx.fill();ctx.restore();
+  }
+}
+function drawWork5(ctx, W, H) {
+  ctx.fillStyle='#FAF5EE'; ctx.fillRect(0,0,W,H);
+  for(let i=0;i<5;i++){
+    ctx.save();ctx.beginPath();const y=H*.2+i*(H*.15);ctx.moveTo(0,y+Math.random()*20);ctx.bezierCurveTo(W*.3,y-20+Math.random()*40,W*.7,y+20+Math.random()*40,W,y+Math.random()*20);ctx.strokeStyle=i%2===0?'rgba(19,17,16,0.6)':'rgba(201,94,37,0.5)';ctx.lineWidth=i===2?3:1;ctx.stroke();ctx.restore();
+  }
+}
+function drawWork6(ctx, W, H) {
+  ctx.fillStyle='#2C2520'; ctx.fillRect(0,0,W,H);
+  const layers=[{c:'rgba(201,94,37,0.4)',blur:50},{c:'rgba(242,217,200,0.15)',blur:30},{c:'rgba(224,120,64,0.3)',blur:40}];
+  layers.forEach((l,i)=>{
+    ctx.save();ctx.beginPath();ctx.ellipse(W*(0.3+i*0.2),H*(0.4+i*0.1),W*0.35,H*0.4,i*0.5,0,Math.PI*2);ctx.fillStyle=l.c;ctx.filter=`blur(${l.blur}px)`;ctx.fill();ctx.restore();
+  });
+}
+function drawWork7(ctx, W, H) {
+  ctx.fillStyle='#F5EDE0'; ctx.fillRect(0,0,W,H);
+  ctx.save();ctx.fillStyle='rgba(201,94,37,0.8)';ctx.beginPath();ctx.moveTo(W*.2,0);ctx.lineTo(W*.8,0);ctx.lineTo(W*.65,H);ctx.lineTo(W*.05,H);ctx.closePath();ctx.fill();ctx.restore();
+  ctx.save();ctx.fillStyle='rgba(19,17,16,0.9)';ctx.beginPath();ctx.moveTo(W*.7,0);ctx.lineTo(W,0);ctx.lineTo(W,H);ctx.lineTo(W*.55,H);ctx.closePath();ctx.fill();ctx.restore();
+  ctx.save();ctx.beginPath();ctx.ellipse(W*.45,H*.5,W*.2,H*.25,0,0,Math.PI*2);ctx.fillStyle='rgba(255,252,248,0.6)';ctx.filter='blur(25px)';ctx.fill();ctx.restore();
+}
+function drawWork8(ctx, W, H) {
+  ctx.fillStyle='#0A0908'; ctx.fillRect(0,0,W,H);
+  for(let i=0;i<3;i++){
+    const x=W*(0.2+i*0.3),y=H*0.5,r=H*(0.12+i*0.04);
+    ctx.save();ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fillStyle=`rgba(201,94,37,${0.4-i*0.1})`;ctx.filter='blur(18px)';ctx.fill();ctx.restore();
+    ctx.save();ctx.beginPath();ctx.arc(x,y,r*0.3,0,Math.PI*2);ctx.fillStyle=`rgba(242,217,200,${0.5-i*0.1})`;ctx.fill();ctx.restore();
+  }
+  ctx.save();ctx.beginPath();ctx.moveTo(0,H*.5);ctx.lineTo(W,H*.5);ctx.strokeStyle='rgba(201,94,37,0.15)';ctx.lineWidth=H*.3;ctx.stroke();ctx.restore();
+}
+
+const grid = document.querySelector('.gallery-grid');
+works.forEach((w, i) => {
+  const item = document.createElement('div');
+  item.className = 'work-item';
+  item.dataset.filter = w.filter;
+
+  const canvas = document.createElement('canvas');
+  item.appendChild(canvas);
+
+  const overlay = document.createElement('div');
+  overlay.className = 'work-overlay';
+  overlay.innerHTML = `<div class="work-info"><div class="work-title">${w.title}</div><div class="work-meta">${w.year} · ${w.medium}</div></div>`;
+  item.appendChild(overlay);
+
+  grid.appendChild(item);
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      canvas.width  = item.offsetWidth  || 400;
+      canvas.height = item.offsetHeight || 300;
+      w.draw(canvas.getContext('2d'), canvas.width, canvas.height);
+    });
+  });
+
+  item.addEventListener('click', () => openLightbox(w));
+});
+
+// ── 필터
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const f = btn.dataset.filter;
+    document.querySelectorAll('.work-item').forEach(item => {
+      item.style.opacity = (f === 'all' || item.dataset.filter === f) ? '1' : '0.2';
+    });
+  });
+});
+
+// ── 라이트박스
+function openLightbox(w) {
+  const lb = document.getElementById('lightbox');
+  const lc = document.getElementById('lightbox-canvas');
+  lc.width = 800; lc.height = 600;
+  w.draw(lc.getContext('2d'), 800, 600);
+  document.getElementById('lightbox-caption').textContent = `${w.title}, ${w.year} — ${w.medium}`;
+  lb.classList.add('open');
+}
+document.getElementById('lightbox-close').addEventListener('click', () => {
+  document.getElementById('lightbox').classList.remove('open');
+});
+document.getElementById('lightbox').addEventListener('click', e => {
+  if (e.target === e.currentTarget) e.currentTarget.classList.remove('open');
+});
+
+// ── 스크롤 리빌
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+}, { threshold: 0.12 });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// ── 폼
+function handleSubmit(e) {
+  e.preventDefault();
+  const btn = e.target.querySelector('.form-submit');
+  btn.textContent = '메시지가 전송되었습니다 ✓';
+  btn.style.background = '#3a6e3a';
+  setTimeout(() => {
+    btn.innerHTML = '메시지 보내기 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13"/><path d="M22 2L15 22l-4-9-9-4 20-7z"/></svg>';
+    btn.style.background = '';
+  }, 3000);
+}
+
+// 리사이즈 시 갤러리 캔버스 재드로우
+window.addEventListener('resize', () => {
+  document.querySelectorAll('.work-item').forEach((item, i) => {
+    const canvas = item.querySelector('canvas');
+    if (!canvas) return;
+    canvas.width  = item.offsetWidth;
+    canvas.height = item.offsetHeight;
+    works[i].draw(canvas.getContext('2d'), canvas.width, canvas.height);
+  });
+});
+</script>
+</body>
+</html>
